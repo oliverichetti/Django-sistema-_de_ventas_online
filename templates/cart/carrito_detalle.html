@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Tu Carrito</h1>
+    </div>
+</div>
+
+{% if items %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Variante</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'catalog:producto_detalle' item.producto.id %}">{{ item.producto.nombre }}</a>
+                            </td>
+                            <td>{{ item.variante.nombre|default:'-' }}</td>
+                            <td>{{ item.precio }} $</td>
+                            <td>
+                                <form action="{% url 'cart:actualizar_carrito' item.id %}" method="post" class="d-flex">
+                                    {% csrf_token %}
+                                    <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" max="10" class="form-control form-control-sm" style="width: 70px;">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary ms-2">Actualizar</button>
+                                </form>
+                            </td>
+                            <td>{{ item.total }} $</td>
+                            <td>
+                                <a href="{% url 'cart:eliminar_del_carrito' item.id %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Resumen del pedido</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span>{{ carrito.subtotal }} $</span>
+                </div>
+                
+                {% if carrito.cupon %}
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span>Descuento ({{ carrito.cupon.codigo }}):</span>
+                    <span>-{{ carrito.descuento }} $</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <form action="{% url 'promotions:eliminar_cupon' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar cupón</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="mb-3">
+                    <form action="{% url 'promotions:aplicar_cupon' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="codigo_cupon" class="form-control" placeholder="Código de cupón">
+                            <button type="submit" class="btn btn-outline-secondary">Aplicar</button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+                
+                <hr>
+                <div class="d-flex justify-content-between mb-3 fw-bold">
+                    <span>Total:</span>
+                    <span>{{ carrito.total }} $</span>
+                </div>
+                
+                <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100">Proceder al checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="card">
+            <div class="card-body py-5">
+                <i class="fas fa-shopping-cart fa-4x mb-3 text-muted"></i>
+                <h3>Tu carrito está vacío</h3>
+                <p>Parece que aún no has añadido productos a tu carrito.</p>
+                <a href="{% url 'catalog:home' %}" class="btn btn-primary mt-3">Continuar comprando</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

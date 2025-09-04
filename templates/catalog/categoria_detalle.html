@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Inicio</a></li>
+                <li class="breadcrumb-item active">{{ categoria.nombre }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row align-items-center mb-4" style="background:#f5f5f5; border-radius:1rem; padding:2rem 1rem;">
+    <div class="col-md-7">
+        <h1 style="color:#ff9800; font-size:2.2rem; font-weight:700;">{{ categoria.nombre }}</h1>
+        <h3 style="color:#555; font-weight:600;">{{ categoria.descripcion|default:"Descubre los mejores productos de esta categoría" }}</h3>
+        <!-- No mostrar el botón de productos destacados aquí -->
+    </div>
+    <div class="col-md-5 text-end">
+        {% if productos_destacados and productos_destacados.0 %}
+            {% with producto=productos_destacados.0 %}
+                <div style="max-width:320px; display:inline-block;">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" style="width:100%; border-radius:1rem; box-shadow:0 4px 24px rgba(0,0,0,0.12);">
+                    {% elif producto.imagenproducto_set.first %}
+                        <img src="{{ producto.imagenproducto_set.first.imagen }}" alt="{{ producto.nombre }}" style="width:100%; border-radius:1rem; box-shadow:0 4px 24px rgba(0,0,0,0.12);">
+                    {% else %}
+                        <div class="bg-light text-center py-5" style="border-radius:1rem;">Sin imagen</div>
+                    {% endif %}
+                    <div class="mt-2 text-center">
+                        <span style="color:#ff9800; font-weight:700; font-size:1.1rem;">{{ producto.nombre }}</span>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    {% for producto in productos %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            {% if producto.imagen %}
+                <img src="{{ producto.imagen }}" class="card-img-top" alt="{{ producto.nombre }}">
+            {% elif producto.imagenproducto_set.first %}
+                <img src="{{ producto.imagenproducto_set.first.imagen }}" class="card-img-top" alt="{{ producto.nombre }}">
+            {% else %}
+                <div class="card-img-top bg-light text-center py-5">Sin imagen</div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ producto.nombre }}</h5>
+                <p class="card-text">{{ producto.descripcion|truncatewords:10 }}</p>
+                <p class="card-text text-primary fw-bold">{{ producto.precio }} $</p>
+                <form action="{% url 'cart:agregar_al_carrito' producto.id %}" method="post" class="d-flex align-items-center gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="cantidad" value="1">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Añadir al carrito</button>
+                </form>
+                <a href="{% url 'catalog:producto_detalle' producto.id %}" class="btn btn-primary mt-2">Ver detalles</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p>No hay productos disponibles en esta categoría.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

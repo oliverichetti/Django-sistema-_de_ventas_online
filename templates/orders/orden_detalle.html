@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles del Pedido #{{ orden.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'orders:historial_ordenes' %}">Mis Pedidos</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Pedido #{{ orden.id }}</li>
+                </ol>
+            </nav>
+            <h1>Detalles del Pedido #{{ orden.id }}</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Productos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in orden.items.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if item.producto.imagenes.first %}
+                                            <img src="{{ item.producto.imagenes.first.imagen.url }}" alt="{{ item.producto.nombre }}" class="img-thumbnail me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <div>{{ item.producto.nombre }}</div>
+                                                {% if item.variante %}
+                                                <small class="text-muted">{{ item.variante.nombre }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td class="text-end">{{ item.precio }} $</td>
+                                    <td class="text-end">{{ item.total }} $</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Subtotal:</th>
+                                    <td class="text-end">{{ orden.subtotal }} $</td>
+                                </tr>
+                                {% if orden.descuento > 0 %}
+                                <tr>
+                                    <th colspan="3" class="text-end">Descuento:</th>
+                                    <td class="text-end">-{{ orden.descuento }} $</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th colspan="3" class="text-end">Total:</th>
+                                    <td class="text-end"><strong>{{ orden.total }} $</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Información del Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Estado:</strong>
+                        {% if orden.estado == 'pendiente' %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% elif orden.estado == 'pagado' %}
+                        <span class="badge bg-info">Pagado</span>
+                        {% elif orden.estado == 'enviado' %}
+                        <span class="badge bg-primary">Enviado</span>
+                        {% elif orden.estado == 'entregado' %}
+                        <span class="badge bg-success">Entregado</span>
+                        {% elif orden.estado == 'cancelado' %}
+                        <span class="badge bg-danger">Cancelado</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Fecha:</strong> {{ orden.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    
+                    {% if orden.despacho %}
+                    <div class="alert alert-info">
+                        <p class="mb-1"><strong>Información de envío:</strong></p>
+                        <p class="mb-1">Fecha de despacho: {{ orden.despacho.fecha_despacho|date:"d/m/Y" }}</p>
+                        <p class="mb-0">Número de seguimiento: {{ orden.despacho.numero_seguimiento }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Dirección de Envío</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>{{ orden.nombre_envio }}</strong></p>
+                    <p>{{ orden.direccion_envio }}</p>
+                    <p>Teléfono: {{ orden.telefono }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

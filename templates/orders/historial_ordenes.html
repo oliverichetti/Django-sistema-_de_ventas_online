@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>Historial de Pedidos</h1>
+        </div>
+    </div>
+    
+    {% if ordenes %}
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Pedido #</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orden in ordenes %}
+                        <tr>
+                            <td>{{ orden.id }}</td>
+                            <td>{{ orden.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if orden.estado == 'pendiente' %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% elif orden.estado == 'pagado' %}
+                                <span class="badge bg-info">Pagado</span>
+                                {% elif orden.estado == 'enviado' %}
+                                <span class="badge bg-primary">Enviado</span>
+                                {% elif orden.estado == 'entregado' %}
+                                <span class="badge bg-success">Entregado</span>
+                                {% elif orden.estado == 'cancelado' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">{{ orden.total }} $</td>
+                            <td class="text-center">
+                                <a href="{% url 'orders:orden_detalle' orden.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Ver detalles
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <p class="mb-0">No tienes pedidos realizados todavía.</p>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{% url 'catalog:home' %}" class="btn btn-primary">Ir a comprar</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

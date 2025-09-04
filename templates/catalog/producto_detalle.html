@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'catalog:categoria_detalle' producto.categoria.id %}">{{ producto.categoria.nombre }}</a></li>
+                <li class="breadcrumb-item active">{{ producto.nombre }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div id="productoCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% if imagenes %}
+                    {% for imagen in imagenes %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ imagen.imagen }}" class="d-block w-100" alt="{{ producto.nombre }}">
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="carousel-item active">
+                        <div class="bg-light text-center py-5"></div>
+                    </div>
+                {% endif %}
+            </div>
+            {% if imagenes.count > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#productoCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productoCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <h1>{{ producto.nombre }}</h1>
+        <p class="text-primary fw-bold fs-4">{{ producto.precio }} $</p>
+        <p>{{ producto.descripcion }}</p>
+        
+        <form action="{% url 'cart:agregar_al_carrito' producto.id %}" method="post">
+            {% csrf_token %}
+            
+            {% if variantes %}
+            <div class="mb-3">
+                <label for="variante_id" class="form-label">Variante</label>
+                <select name="variante_id" id="variante_id" class="form-select" required>
+                    <option value="">Selecciona una variante</option>
+                    {% for variante in variantes %}
+                    <option value="{{ variante.id }}">{{ variante.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" name="cantidad" id="cantidad" class="form-control" value="1" min="1" max="10" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg">Añadir al carrito</button>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2>Detalles del producto</h2>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Características</h3>
+                <p>{{ producto.caracteristicas|linebreaks }}</p>
+            </div>
+            <div class="col-md-6">
+                <h3>Especificaciones</h3>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>SKU:</strong> {{ producto.sku }}</li>
+                    <li class="list-group-item"><strong>Categoría:</strong> {{ producto.categoria.nombre }}</li>
+                    <li class="list-group-item"><strong>Disponibilidad:</strong> {% if producto.disponible %}En stock{% else %}Agotado{% endif %}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
