@@ -88,7 +88,7 @@
                 <ul class="list-group">
                     <li class="list-group-item"><strong>SKU:</strong> {{ producto.sku }}</li>
                     <li class="list-group-item"><strong>Categoría:</strong> {{ producto.categoria.nombre }}</li>
-                    <li class="list-group-item"><strong>Disponibilidad:</strong> {% if producto.disponible %}En stock{% else %}Agotado{% endif %}</li>
+                    <li class="list-group-item"><strong>Disponibilidad:</strong> {% if producto.stock > 0 %}En stock{% else %}Agotado{% endif %}</li>
                 </ul>
             </div>
         </div>
